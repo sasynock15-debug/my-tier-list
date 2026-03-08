@@ -4,46 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2196F3">
-    <title>Pro Tier List v3.2</title>
+    <title>Pro Tier List v3.3</title>
 
-    <!-- Встроенный Манифест для PWA (Добавление на главный экран) -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlBybyBUaWVyIExpc3QiLAogICJzaG9ydF9uYW1lIjogIlRpZXJMaXN0IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxYTFhMWEiLAogICJ0aGVtZV9jb2xvciI6ICIjMjE5NkYzIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzI0Mi8zMjQyMjU3LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+    <!-- Манифест: Ищет файл icon.png в твоем репозитории на GitHub -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlBybyBUaWVyIExpc3QiLAogICJzaG9ydF9uYW1lIjogIlRpZXJMaXN0IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxYTFhMWEiLAogICJ0aGVtZV9jb2xvciI6ICIjMjE5NkYzIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaWNvbi5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzI0Mi8zMjQyMjU3LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
 
     <style>
         body { font-family: sans-serif; background: #1a1a1a; color: white; margin: 0; padding: 10px; padding-bottom: 160px; }
         .container { max-width: 900px; margin: 0 auto; }
         .panel { background: #2a2a2a; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        select, input { background: #333; color: white; border: 1px solid #444; padding: 10px; border-radius: 5px; margin: 5px 0; width: 100%; box-sizing: border-box; font-size: 16px; }
+        
+        /* Стили для аватара списка */
+        .list-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .list-icon { width: 50px; height: 50px; border-radius: 8px; background: #444; object-fit: cover; cursor: pointer; border: 2px solid #2196F3; }
+        
+        select { background: #333; color: white; border: 1px solid #444; padding: 10px; border-radius: 5px; flex-grow: 1; font-size: 16px; }
         .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; min-width: 80px; font-size: 13px; transition: 0.2s; text-transform: uppercase; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; min-width: 80px; font-size: 11px; transition: 0.2s; text-transform: uppercase; }
         .btn:active { transform: scale(0.95); opacity: 0.8; }
         .btn-add { background: #4CAF50; } 
         .btn-blue { background: #2196F3; } 
         .btn-red { background: #f44336; }
         .btn-purple { background: #9C27B0; }
         .tier-row { display: flex; background: #333; margin-bottom: 6px; border-radius: 8px; overflow: hidden; min-height: 90px; border: 1px solid #444; }
-        .tier-label { width: 85px; display: flex; align-items: center; justify-content: center; font-weight: bold; text-align: center; color: black; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; padding: 5px; word-break: break-word; line-height: 1.1; }
+        .tier-label { width: 85px; display: flex; align-items: center; justify-content: center; font-weight: bold; text-align: center; color: black; font-size: 1rem; cursor: pointer; flex-shrink: 0; padding: 5px; word-break: break-word; }
         .tier-items { flex-grow: 1; display: flex; flex-wrap: wrap; padding: 10px; gap: 10px; align-content: flex-start; min-height: 70px; background: #222; }
-        .img-item { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 2px solid transparent; cursor: pointer; transition: 0.1s; }
+        .img-item { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 2px solid transparent; cursor: pointer; }
         .img-item.active { border-color: #2196F3; transform: scale(1.15); z-index: 10; box-shadow: 0 0 15px rgba(33, 150, 243, 0.5); }
+        
         #imgMenu { position: fixed; bottom: 0; left: 0; right: 0; background: #2a2a2a; padding: 20px; border-top: 4px solid #2196F3; display: none; z-index: 1000; box-shadow: 0 -5px 25px rgba(0,0,0,0.9); border-radius: 20px 20px 0 0; }
-        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; overflow-y: auto; max-height: 200px; padding-right: 5px; }
-        .rank-btn { padding: 10px 5px; border: none; border-radius: 6px; color: black; font-weight: bold; font-size: 12px; cursor: pointer; text-align: center; }
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; overflow-y: auto; max-height: 200px; }
+        .rank-btn { padding: 10px 5px; border: none; border-radius: 6px; color: black; font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; }
         .unsorted { background: #111; border: 2px dashed #444; border-radius: 12px; margin-top: 25px; padding: 15px; }
-        h4 { margin: 0 0 12px 5px; color: #aaa; letter-spacing: 1px; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="panel">
-        <div style="display:flex; gap:5px">
+        <!-- Заголовок со сменой иконки -->
+        <div class="list-header">
+            <img id="listAvatar" class="list-icon" src="https://cdn-icons-png.flaticon.com" onclick="document.getElementById('iconIn').click()" title="Нажми, чтобы сменить иконку">
             <select id="listSelect" onchange="switchList()"></select>
-            <button class="btn btn-blue" style="max-width:50px;" onclick="renameCurrentList()">✎</button>
+            <button class="btn btn-blue" style="max-width:40px; padding: 10px;" onclick="renameCurrentList()">✎</button>
         </div>
+
         <div class="btn-row">
             <button class="btn btn-blue" onclick="newList()">+ Новый список</button>
-            <button class="btn btn-red" onclick="deleteCurrentList()">Удалить всё</button>
+            <button class="btn btn-red" onclick="deleteCurrentList()">Удалить список</button>
         </div>
         <div class="btn-row">
             <button class="btn btn-add" onclick="document.getElementById('fIn').click()">ДОБАВИТЬ ФОТО</button>
@@ -53,8 +61,11 @@
             <button class="btn" style="background:#444" onclick="exportJSON()">БЭКАП</button>
             <button class="btn" style="background:#444" onclick="document.getElementById('impIn').click()">ИМПОРТ</button>
         </div>
+
+        <!-- Скрытые инпуты -->
         <input type="file" id="fIn" multiple accept="image/*" style="display:none" onchange="uploadFiles(this.files)">
         <input type="file" id="impIn" accept=".json" style="display:none" onchange="importJSON(this)">
+        <input type="file" id="iconIn" accept="image/*" style="display:none" onchange="changeListIcon(this.files[0])">
     </div>
 
     <div id="tierBoard"></div>
@@ -67,8 +78,8 @@
 
 <div id="imgMenu">
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <span id="menuTitle" style="font-weight:bold; color: #bbb;">УПРАВЛЕНИЕ</span>
-        <button onclick="closeMenu()" style="background:none; border:none; color:white; font-size:32px; cursor:pointer; line-height: 0.5;">&times;</button>
+        <span style="font-weight:bold; color: #bbb;">ДЕЙСТВИЯ</span>
+        <button onclick="closeMenu()" style="background:none; border:none; color:white; font-size:32px; cursor:pointer;">&times;</button>
     </div>
     <div class="btn-row">
         <button class="btn btn-blue" onclick="moveSide('left')">←</button>
@@ -81,7 +92,7 @@
 <script>
 let db, lists = {}, curId = null, selectedImg = null;
 
-// Инициализация БД
+// IndexedDB
 const request = indexedDB.open("SuperTierDB_v3", 1);
 request.onupgradeneeded = e => {
     db = e.target.result;
@@ -112,16 +123,25 @@ function newList(name = null) {
     const id = Date.now().toString();
     lists[id] = {
         name: title,
+        icon: "https://cdn-icons-png.flaticon.com",
         tiers: [
             { name: 'S', color: '#ff7f7f', items: [] },
             { name: 'A', color: '#ffbf7f', items: [] },
-            { name: 'B', color: '#ffdf7f', items: [] },
-            { name: 'C', color: '#7fff7f', items: [] }
+            { name: 'B', color: '#ffdf7f', items: [] }
         ],
         unsorted: []
     };
     curId = id;
     updateUI(); save();
+}
+
+// Новая функция смены иконки списка
+async function changeListIcon(file) {
+    if(!file) return;
+    const compressed = await compressImg(file);
+    lists[curId].icon = compressed;
+    updateUI();
+    save();
 }
 
 function updateUI() {
@@ -134,10 +154,11 @@ function updateUI() {
         sel.appendChild(opt);
     }
 
+    // Обновляем аватарку текущего списка
+    document.getElementById('listAvatar').src = lists[curId].icon || "https://cdn-icons-png.flaticon.com";
+
     const board = document.getElementById('tierBoard');
     board.innerHTML = '';
-    if(!lists[curId]) return;
-
     lists[curId].tiers.forEach((t, tIdx) => {
         const row = document.createElement('div');
         row.className = 'tier-row';
@@ -152,6 +173,8 @@ function updateUI() {
     lists[curId].unsorted.forEach((src, iIdx) => renderImg(src, -1, iIdx, 'unsorted-items'));
 }
 
+// ... (остальные функции: renderImg, openMenu, changeTier, moveSide, deletePhoto, addTier, editTier, renameCurrentList, compressImg, uploadFiles, switchList, closeMenu, deleteCurrentList, exportJSON, importJSON остаются без изменений) ...
+
 function renderImg(src, tIdx, iIdx, containerId) {
     const img = document.createElement('img');
     img.src = src; img.className = 'img-item';
@@ -163,7 +186,6 @@ function openMenu(tIdx, iIdx, e) {
     selectedImg = { tIdx, iIdx };
     document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active'));
     e.target.classList.add('active');
-
     const rb = document.getElementById('rankButtons');
     rb.innerHTML = '';
     lists[curId].tiers.forEach((t, idx) => {
@@ -175,13 +197,8 @@ function openMenu(tIdx, iIdx, e) {
 
 function changeTier(newTIdx) {
     const cur = lists[curId];
-    let item = (selectedImg.tIdx === -1) 
-        ? cur.unsorted.splice(selectedImg.iIdx, 1)[0] 
-        : cur.tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1)[0];
-
-    if (newTIdx === -1) cur.unsorted.push(item);
-    else cur.tiers[newTIdx].items.push(item);
-
+    let item = (selectedImg.tIdx === -1) ? cur.unsorted.splice(selectedImg.iIdx, 1)[0] : cur.tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1)[0];
+    if (newTIdx === -1) cur.unsorted.push(item); else cur.tiers[newTIdx].items.push(item);
     closeMenu(); updateUI(); save();
 }
 
@@ -203,8 +220,7 @@ function deletePhoto() {
 }
 
 function addTier() {
-    const n = prompt("Имя ранга:", "New");
-    if(!n) return;
+    const n = prompt("Имя ранга:", "New"); if(!n) return;
     lists[curId].tiers.push({ name: n, color: '#555', items: [] });
     updateUI(); save();
 }
@@ -213,10 +229,9 @@ function editTier(idx) {
     const t = lists[curId].tiers[idx];
     const act = confirm("ОК - Изменить, ОТМЕНА - Удалить ранг");
     if (act) {
-        const n = prompt("Имя:", t.name);
-        const c = prompt("Цвет:", t.color);
+        const n = prompt("Имя:", t.name); const c = prompt("Цвет:", t.color);
         if(n) t.name = n; if(c) t.color = c;
-    } else if(confirm("Удалить ранг? Фото уйдут в Unsorted")) {
+    } else if(confirm("Удалить ранг?")) {
         lists[curId].unsorted.push(...t.items);
         lists[curId].tiers.splice(idx, 1);
     }
@@ -230,18 +245,13 @@ function renameCurrentList() {
 
 function compressImg(file) {
     return new Promise(res => {
-        const r = new FileReader();
-        r.readAsDataURL(file);
+        const r = new FileReader(); r.readAsDataURL(file);
         r.onload = e => {
-            const img = new Image();
-            img.src = e.target.result;
+            const img = new Image(); img.src = e.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX = 800;
-                let w = img.width, h = img.height;
-                if (w > MAX || h > MAX) {
-                    if (w > h) { h *= MAX / w; w = MAX; } else { w *= MAX / h; h = MAX; }
-                }
+                const MAX = 800; let w = img.width, h = img.height;
+                if (w > MAX || h > MAX) { if (w > h) { h *= MAX / w; w = MAX; } else { w *= MAX / h; h = MAX; } }
                 canvas.width = w; canvas.height = h;
                 canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                 res(canvas.toDataURL('image/jpeg', 0.7));
@@ -251,10 +261,7 @@ function compressImg(file) {
 }
 
 async function uploadFiles(files) {
-    for (let f of files) {
-        const c = await compressImg(f);
-        lists[curId].unsorted.push(c);
-    }
+    for (let f of files) { const c = await compressImg(f); lists[curId].unsorted.push(c); }
     updateUI(); save();
 }
 
@@ -262,32 +269,21 @@ function switchList() { curId = document.getElementById('listSelect').value; upd
 function closeMenu() { document.getElementById('imgMenu').style.display = 'none'; }
 
 function deleteCurrentList() {
-    if (Object.keys(lists).length <= 1) return alert("Нельзя удалить последний список");
-    if (confirm("Удалить весь список?")) {
-        delete lists[curId];
-        curId = Object.keys(lists)[0];
-        updateUI(); save();
-    }
+    if (Object.keys(lists).length <= 1) return alert("Нельзя удалить последний");
+    if (confirm("Удалить список?")) { delete lists[curId]; curId = Object.keys(lists)[0]; updateUI(); save(); }
 }
 
 function exportJSON() {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(lists)], {type: "application/json"}));
-    a.download = `tierlist-${new Date().toLocaleDateString()}.json`;
-    a.click();
+    a.download = `tierlist-${new Date().toLocaleDateString()}.json`; a.click();
 }
 
 function importJSON(input) {
-    const r = new FileReader();
-    r.readAsText(input.files[0]);
-    r.onload = e => {
-        lists = JSON.parse(e.target.result);
-        curId = Object.keys(lists)[0];
-        updateUI(); save(); alert("Готово!");
-    };
+    const r = new FileReader(); r.readAsText(input.files[0]);
+    r.onload = e => { lists = JSON.parse(e.target.result); curId = Object.keys(lists)[0]; updateUI(); save(); alert("Готово!"); };
 }
 
-// Регистрация простого Service Worker для работы офлайн
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGZ1bmN0aW9uKGV2ZW50KSB7IH0pOw==');
 }
