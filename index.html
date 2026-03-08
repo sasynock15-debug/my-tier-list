@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- Настройки шторки: Глубокий черный -->
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <title>Tier List Pro</title>
 
-    <!-- Манифест для PWA -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRpZXIgTGlzdCBQcm8iLAogICJzaG9ydF9uYW1lIjogIlRpZXJMaXN0IiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiIzAwMDAwMCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImljb24ucG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9CiAgXQp9">
+    <!-- Обновленный манифест с версией v=2 для сброса кэша -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRpZXIgTGlzdCBQcm8iLAogICJzaG9ydF9uYW1lIjogIlRpZXJMaXN0IiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbD92PTIiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwMDAwMDAiLAogICJ0aGVtZV9jb2xvciI6ICIjMDAwMDAwIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaWNvbi5wbmc/dj0yIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9CiAgXQp9">
 
     <style>
         body { font-family: sans-serif; background: #000; color: #eee; margin: 0; padding: env(safe-area-inset-top) 10px 160px 10px; -webkit-tap-highlight-color: transparent; }
@@ -45,18 +42,9 @@
             <select id="listSelect" onchange="switchList()"></select>
             <button class="btn btn-blue" style="max-width:45px;" onclick="renameCurrentList()">✎</button>
         </div>
-        <div class="btn-row">
-            <button class="btn btn-blue" onclick="newList()">+ Новый</button>
-            <button class="btn btn-red" onclick="deleteCurrentList()">Удалить</button>
-        </div>
-        <div class="btn-row">
-            <button class="btn btn-add" onclick="document.getElementById('fIn').click()">ФОТО</button>
-            <button class="btn btn-purple" onclick="addTier()">+ РАНГ</button>
-        </div>
-        <div class="btn-row" style="margin-top:10px">
-            <button class="btn" style="background:#333" onclick="exportJSON()">БЭКАП</button>
-            <button class="btn" style="background:#333" onclick="document.getElementById('impIn').click()">ИМПОРТ</button>
-        </div>
+        <div class="btn-row"><button class="btn btn-blue" onclick="newList()">+ Новый</button><button class="btn btn-red" onclick="deleteCurrentList()">Удалить</button></div>
+        <div class="btn-row"><button class="btn btn-add" onclick="document.getElementById('fIn').click()">ФОТО</button><button class="btn btn-purple" onclick="addTier()">+ РАНГ</button></div>
+        <div class="btn-row" style="margin-top:10px"><button class="btn" style="background:#333" onclick="exportJSON()">БЭКАП</button><button class="btn" style="background:#333" onclick="document.getElementById('impIn').click()">ИМПОРТ</button></div>
         <input type="file" id="fIn" multiple accept="image/*" style="display:none" onchange="uploadFiles(this.files)">
         <input type="file" id="impIn" accept=".json" style="display:none" onchange="importJSON(this)">
     </div>
@@ -64,15 +52,8 @@
     <div class="unsorted"><h4>ОЧЕРЕДЬ:</h4><div class="tier-items" id="unsorted-items"></div></div>
 </div>
 <div id="imgMenu">
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ</span>
-        <button onclick="closeMenu()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
-    </div>
-    <div class="btn-row">
-        <button class="btn btn-blue" onclick="moveSide('left')">←</button>
-        <button class="btn btn-blue" onclick="moveSide('right')">→</button>
-        <button class="btn btn-red" onclick="deletePhoto()">УДАЛИТЬ</button>
-    </div>
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ</span><button onclick="closeMenu()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button></div>
+    <div class="btn-row"><button class="btn btn-blue" onclick="moveSide('left')">←</button><button class="btn btn-blue" onclick="moveSide('right')">→</button><button class="btn btn-red" onclick="deletePhoto()">УДАЛИТЬ</button></div>
     <div id="rankButtons" class="menu-grid"></div>
 </div>
 <script>
@@ -108,15 +89,7 @@ function changeTier(newTIdx) { const cur = lists[curId]; let item = (selectedImg
 function deletePhoto() { if(confirm("Удалить фото?")) { const cur = lists[curId]; if (selectedImg.tIdx === -1) cur.unsorted.splice(selectedImg.iIdx, 1); else cur.tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1); closeMenu(); updateUI(); save(); } }
 function moveSide(dir) { const arr = selectedImg.tIdx === -1 ? lists[curId].unsorted : lists[curId].tiers[selectedImg.tIdx].items; const i = selectedImg.iIdx; if (dir === 'left' && i > 0) [arr[i], arr[i-1]] = [arr[i-1], arr[i]]; if (dir === 'right' && i < arr.length - 1) [arr[i], arr[i+1]] = [arr[i+1], arr[i]]; updateUI(); save(); closeMenu(); }
 function addTier() { const n = prompt("Имя:"); if(n) { lists[curId].tiers.push({ name: n, color: '#444', items: [] }); updateUI(); save(); } }
-function editTier(idx) { 
-    const t = lists[curId].tiers[idx]; 
-    const act = confirm("ОК - Изменить, Отмена - Удалить");
-    if(act) {
-        const n = prompt("Имя:", t.name); const c = prompt("Цвет:", t.color);
-        if(n) t.name = n; if(c) t.color = c;
-    } else if(confirm("Удалить?")) { lists[curId].unsorted.push(...t.items); lists[curId].tiers.splice(idx, 1); }
-    updateUI(); save(); 
-}
+function editTier(idx) { const t = lists[curId].tiers[idx]; const act = confirm("ОК - Изменить, Отмена - Удалить"); if(act) { const n = prompt("Имя:", t.name); const c = prompt("Цвет:", t.color); if(n) t.name = n; if(c) t.color = c; } else if(confirm("Удалить?")) { lists[curId].unsorted.push(...t.items); lists[curId].tiers.splice(idx, 1); } updateUI(); save(); }
 function renameCurrentList() { const n = prompt("Имя:", lists[curId].name); if(n) { lists[curId].name = n; updateUI(); save(); } }
 function compressImg(file) {
     return new Promise(res => {
@@ -139,7 +112,6 @@ function deleteCurrentList() { if (Object.keys(lists).length > 1 && confirm("У�
 function exportJSON() { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(lists)], {type: "application/json"})); a.download = `backup.json`; a.click(); }
 function importJSON(input) { const r = new FileReader(); r.readAsText(input.files); r.onload = e => { try { lists = JSON.parse(e.target.result); curId = Object.keys(lists); updateUI(); save(); alert("Импортировано!"); } catch(err) { alert("Ошибка файла"); } }; }
 
-// РЕГИСТРАЦИЯ SERVICE WORKER (Чтобы телефон считал это приложением)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZSA9PiBzZWxmLnNraXBXYWl0aW5nKCkpOwpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJywgZSA9PiBlLnJlc3BvbmRXaXRoKGZldGNoKGUucmVxdWVzdCkpKTs=');
