@@ -6,10 +6,10 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
     <title>Tier List Pro</title>
 
-    <!-- Обновленный манифест с версией v=2 для сброса кэша -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRpZXIgTGlzdCBQcm8iLAogICJzaG9ydF9uYW1lIjogIlRpZXJMaXN0IiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbD92PTIiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwMDAwMDAiLAogICJ0aGVtZV9jb2xvciI6ICIjMDAwMDAwIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaWNvbi5wbmc/dj0yIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9CiAgXQp9">
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRpZXIgTGlzdCBQcm8iLAogICJzaG9ydF9uYW1lIjogIlRpZXJMaXN0IiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAwMDAwMCIsCiAgInRoZW1lX2NvbG9yIjogIiMwMDAwMDAiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJpY29uLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
 
     <style>
         body { font-family: sans-serif; background: #000; color: #eee; margin: 0; padding: env(safe-area-inset-top) 10px 160px 10px; -webkit-tap-highlight-color: transparent; }
@@ -19,17 +19,29 @@
         .list-icon { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; border: 1px solid #444; background: #111; }
         select { background: #222; color: white; border: 1px solid #333; padding: 12px; border-radius: 12px; flex-grow: 1; font-size: 16px; outline: none; }
         .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; text-transform: uppercase; transition: 0.15s; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; text-transform: uppercase; transition: 0.15s; text-align: center; }
         .btn:active { transform: scale(0.95); opacity: 0.8; }
         .btn-add { background: #1b5e20; } .btn-blue { background: #0d47a1; } .btn-red { background: #b71c1c; } .btn-purple { background: #4a148c; }
-        .tier-row { display: flex; background: #111; margin-bottom: 8px; border-radius: 18px; overflow: hidden; min-height: 100px; border: 1px solid #222; }
+        
+        .tier-row { display: flex; background: #111; margin-bottom: 8px; border-radius: 18px; overflow: hidden; min-height: 80px; border: 1px solid #222; }
         .tier-label { width: 65px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 1.4rem; cursor: pointer; flex-shrink: 0; }
-        .tier-items { flex-grow: 1; display: flex; flex-wrap: wrap; padding: 10px; gap: 10px; background: #000; }
-        .img-item { width: 70px; height: 70px; object-fit: cover; border-radius: 12px; border: 2px solid transparent; }
-        .img-item.active { border-color: #2196F3; transform: scale(1.1); z-index: 10; }
+        
+        /* Сетка для 5 картинок в ряд */
+        .tier-items { 
+            flex-grow: 1; 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 6px; 
+            padding: 8px; 
+            background: #000; 
+            align-content: start;
+        }
+        .img-item { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+        .img-item.active { border-color: #2196F3; transform: scale(1.05); z-index: 10; }
+        
         #imgMenu { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 25px 20px env(safe-area-inset-bottom); border-top: 1px solid #333; display: none; z-index: 1000; border-radius: 25px 25px 0 0; }
         .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .rank-btn { padding: 12px 2px; border: none; border-radius: 8px; color: #000; font-weight: bold; font-size: 12px; }
+        .rank-btn { padding: 12px 2px; border: none; border-radius: 8px; color: #000; font-weight: bold; font-size: 12px; text-align: center; }
         .unsorted { background: #050505; border: 1px dashed #222; border-radius: 20px; margin-top: 30px; padding: 15px; }
         h4 { margin: 0 0 12px 5px; color: #444; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
     </style>
@@ -38,84 +50,181 @@
 <div class="container">
     <div class="panel">
         <div class="list-header">
-            <img class="list-icon" src="icon.png" onerror="this.src='https://cdn-icons-png.flaticon.com'">
+            <img class="list-icon" src="icon.png" onerror="this.src='https://flaticon.com'">
             <select id="listSelect" onchange="switchList()"></select>
             <button class="btn btn-blue" style="max-width:45px;" onclick="renameCurrentList()">✎</button>
         </div>
-        <div class="btn-row"><button class="btn btn-blue" onclick="newList()">+ Новый</button><button class="btn btn-red" onclick="deleteCurrentList()">Удалить</button></div>
-        <div class="btn-row"><button class="btn btn-add" onclick="document.getElementById('fIn').click()">ФОТО</button><button class="btn btn-purple" onclick="addTier()">+ РАНГ</button></div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn" style="background:#333" onclick="exportJSON()">БЭКАП</button><button class="btn" style="background:#333" onclick="document.getElementById('impIn').click()">ИМПОРТ</button></div>
+        <div class="btn-row">
+            <button class="btn btn-blue" onclick="newList()">+ Новый</button>
+            <button class="btn btn-red" onclick="deleteCurrentList()">Удалить</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-add" onclick="document.getElementById('fIn').click()">ФОТО</button>
+            <button class="btn btn-purple" onclick="addTier()">+ РАНГ</button>
+        </div>
+        <div class="btn-row" style="margin-top:10px">
+            <button class="btn" style="background:#333" onclick="exportJSON()">БЭКАП</button>
+            <button class="btn" style="background:#333" onclick="document.getElementById('impIn').click()">ИМПОРТ</button>
+        </div>
         <input type="file" id="fIn" multiple accept="image/*" style="display:none" onchange="uploadFiles(this.files)">
         <input type="file" id="impIn" accept=".json" style="display:none" onchange="importJSON(this)">
     </div>
     <div id="tierBoard"></div>
     <div class="unsorted"><h4>ОЧЕРЕДЬ:</h4><div class="tier-items" id="unsorted-items"></div></div>
 </div>
+
 <div id="imgMenu">
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ</span><button onclick="closeMenu()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button></div>
-    <div class="btn-row"><button class="btn btn-blue" onclick="moveSide('left')">←</button><button class="btn btn-blue" onclick="moveSide('right')">→</button><button class="btn btn-red" onclick="deletePhoto()">УДАЛИТЬ</button></div>
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ</span>
+        <button onclick="closeMenu()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-blue" onclick="moveSide('left')">←</button>
+        <button class="btn btn-blue" onclick="moveSide('right')">→</button>
+        <button class="btn btn-red" onclick="deletePhoto()">УДАЛИТЬ</button>
+    </div>
     <div id="rankButtons" class="menu-grid"></div>
 </div>
+
 <script>
 let db, lists = {}, curId = null, selectedImg = null;
 const request = indexedDB.open("SuperTierDB_v3", 1);
 request.onupgradeneeded = e => { e.target.result.createObjectStore("data", { keyPath: "id" }); };
 request.onsuccess = e => { db = e.target.result; loadData(); };
-function loadData() { db.transaction("data").objectStore("data").get("main").onsuccess = (e) => { if (e.target.result) { lists = e.target.result.content; curId = Object.keys(lists); updateUI(); } else { newList("Мой список"); } }; }
+
+function loadData() { 
+    db.transaction("data").objectStore("data").get("main").onsuccess = (e) => { 
+        if (e.target.result) { 
+            lists = e.target.result.content; 
+            curId = Object.keys(lists)[0]; 
+            updateUI(); 
+        } else { 
+            newList("Мой список"); 
+        } 
+    }; 
+}
+
 function save() { db.transaction("data", "readwrite").objectStore("data").put({ id: "main", content: lists }); }
-function newList(name = null) { const title = name || prompt("Название:"); if (!title) return; const id = Date.now().toString(); lists[id] = { name: title, tiers: [{ name: 'S', color: '#ff5252', items: [] }, { name: 'A', color: '#ffb142', items: [] }, { name: 'B', color: '#ffda79', items: [] }], unsorted: [] }; curId = id; updateUI(); save(); }
+
 function updateUI() {
     const sel = document.getElementById('listSelect'); sel.innerHTML = '';
     for (let id in lists) { sel.innerHTML += `<option value="${id}" ${id===curId?'selected':''}>${lists[id].name}</option>`; }
     const board = document.getElementById('tierBoard'); board.innerHTML = '';
+    if(!lists[curId]) return;
+    
     lists[curId].tiers.forEach((t, tIdx) => {
         const row = document.createElement('div'); row.className = 'tier-row';
         row.innerHTML = `<div class="tier-label" style="background:${t.color}" onclick="editTier(${tIdx})">${t.name}</div><div class="tier-items" id="t-${tIdx}"></div>`;
         board.appendChild(row);
         t.items.forEach((src, iIdx) => renderImg(src, tIdx, iIdx, `t-${tIdx}`));
     });
-    document.getElementById('unsorted-items').innerHTML = '';
+    
+    const unsortedContainer = document.getElementById('unsorted-items');
+    unsortedContainer.innerHTML = '';
     lists[curId].unsorted.forEach((src, iIdx) => renderImg(src, -1, iIdx, 'unsorted-items'));
 }
-function renderImg(src, tIdx, iIdx, id) { const img = document.createElement('img'); img.src = src; img.className = 'img-item'; img.onclick = (e) => openMenu(tIdx, iIdx, e); document.getElementById(id).appendChild(img); }
-function openMenu(tIdx, iIdx, e) {
-    selectedImg = { tIdx, iIdx }; document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active'));
-    e.target.classList.add('active'); const rb = document.getElementById('rankButtons'); rb.innerHTML = '';
-    lists[curId].tiers.forEach((t, idx) => { rb.innerHTML += `<button class="rank-btn" style="background:${t.color}" onclick="changeTier(${idx})">${t.name}</button>`; });
-    rb.innerHTML += `<button class="rank-btn" style="background:#555; color:white" onclick="changeTier(-1)">?</button>`;
-    document.getElementById('imgMenu').style.display = 'block';
+
+function renderImg(src, tIdx, iIdx, containerId) { 
+    const img = document.createElement('img'); 
+    img.src = src; 
+    img.className = 'img-item'; 
+    img.onclick = (e) => openMenu(tIdx, iIdx, e); 
+    const container = document.getElementById(containerId);
+    if(container) container.appendChild(img);
 }
-function changeTier(newTIdx) { const cur = lists[curId]; let item = (selectedImg.tIdx === -1) ? cur.unsorted.splice(selectedImg.iIdx, 1) : cur.tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1); if (newTIdx === -1) cur.unsorted.push(item); else cur.tiers[newTIdx].items.push(item); closeMenu(); updateUI(); save(); }
-function deletePhoto() { if(confirm("Удалить фото?")) { const cur = lists[curId]; if (selectedImg.tIdx === -1) cur.unsorted.splice(selectedImg.iIdx, 1); else cur.tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1); closeMenu(); updateUI(); save(); } }
-function moveSide(dir) { const arr = selectedImg.tIdx === -1 ? lists[curId].unsorted : lists[curId].tiers[selectedImg.tIdx].items; const i = selectedImg.iIdx; if (dir === 'left' && i > 0) [arr[i], arr[i-1]] = [arr[i-1], arr[i]]; if (dir === 'right' && i < arr.length - 1) [arr[i], arr[i+1]] = [arr[i+1], arr[i]]; updateUI(); save(); closeMenu(); }
-function addTier() { const n = prompt("Имя:"); if(n) { lists[curId].tiers.push({ name: n, color: '#444', items: [] }); updateUI(); save(); } }
-function editTier(idx) { const t = lists[curId].tiers[idx]; const act = confirm("ОК - Изменить, Отмена - Удалить"); if(act) { const n = prompt("Имя:", t.name); const c = prompt("Цвет:", t.color); if(n) t.name = n; if(c) t.color = c; } else if(confirm("Удалить?")) { lists[curId].unsorted.push(...t.items); lists[curId].tiers.splice(idx, 1); } updateUI(); save(); }
-function renameCurrentList() { const n = prompt("Имя:", lists[curId].name); if(n) { lists[curId].name = n; updateUI(); save(); } }
-function compressImg(file) {
-    return new Promise(res => {
-        const r = new FileReader(); r.readAsDataURL(file);
-        r.onload = e => {
-            const img = new Image(); img.src = e.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas'); const MAX = 700; let w = img.width, h = img.height;
-                if (w > MAX || h > MAX) { if (w > h) { h *= MAX / w; w = MAX; } else { w *= MAX / h; h = MAX; } }
-                canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                res(canvas.toDataURL('image/jpeg', 0.75));
-            };
-        };
+
+function uploadFiles(files) {
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => { lists[curId].unsorted.push(e.target.result); save(); updateUI(); };
+        reader.readAsDataURL(file);
     });
 }
-async function uploadFiles(files) { for (let f of files) { lists[curId].unsorted.push(await compressImg(f)); } updateUI(); save(); }
-function switchList() { curId = document.getElementById('listSelect').value; updateUI(); }
-function closeMenu() { document.getElementById('imgMenu').style.display = 'none'; document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active')); }
-function deleteCurrentList() { if (Object.keys(lists).length > 1 && confirm("Удалить весь список?")) { delete lists[curId]; curId = Object.keys(lists); updateUI(); save(); } }
-function exportJSON() { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(lists)], {type: "application/json"})); a.download = `backup.json`; a.click(); }
-function importJSON(input) { const r = new FileReader(); r.readAsText(input.files); r.onload = e => { try { lists = JSON.parse(e.target.result); curId = Object.keys(lists); updateUI(); save(); alert("Импортировано!"); } catch(err) { alert("Ошибка файла"); } }; }
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZSA9PiBzZWxmLnNraXBXYWl0aW5nKCkpOwpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJywgZSA9PiBlLnJlc3BvbmRXaXRoKGZldGNoKGUucmVxdWVzdCkpKTs=');
-  });
+/* ИСПРАВЛЕННЫЙ БЭКАП */
+function exportJSON() {
+    const data = JSON.stringify(lists);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tier-list-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/* ИСПРАВЛЕННЫЙ ИМПОРТ */
+function importJSON(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            lists = imported;
+            curId = Object.keys(lists)[0];
+            save(); updateUI();
+            alert("Импорт выполнен!");
+        } catch(err) { alert("Ошибка: Неверный формат JSON"); }
+    };
+    reader.readAsText(file);
+}
+
+function newList(name = null) { 
+    const title = name || prompt("Название:"); 
+    if (!title) return; 
+    const id = Date.now().toString(); 
+    lists[id] = { name: title, tiers: [{ name: 'S', color: '#ff5252', items: [] }, { name: 'A', color: '#ffb142', items: [] }, { name: 'B', color: '#ffda79', items: [] }], unsorted: [] }; 
+    curId = id; updateUI(); save(); 
+}
+
+function switchList() { curId = document.getElementById('listSelect').value; updateUI(); }
+function deleteCurrentList() { if(Object.keys(lists).length > 1 && confirm("Удалить?")) { delete lists[curId]; curId = Object.keys(lists)[0]; save(); updateUI(); } }
+function renameCurrentList() { const n = prompt("Новое имя:", lists[curId].name); if(n) { lists[curId].name = n; save(); updateUI(); } }
+function addTier() { lists[curId].tiers.push({name:'?', color:'#555', items:[]}); save(); updateUI(); }
+
+function openMenu(tIdx, iIdx, e) {
+    selectedImg = { tIdx, iIdx };
+    document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active'));
+    e.target.classList.add('active');
+    const rb = document.getElementById('rankButtons'); rb.innerHTML = '';
+    lists[curId].tiers.forEach((t, idx) => {
+        rb.innerHTML += `<button class="rank-btn" style="background:${t.color}" onclick="moveToTier(${idx})">${t.name}</button>`;
+    });
+    rb.innerHTML += `<button class="rank-btn" style="background:#333; color:#fff" onclick="moveToTier(-1)">ОЧЕРЕДЬ</button>`;
+    document.getElementById('imgMenu').style.display = 'block';
+}
+
+function closeMenu() { document.getElementById('imgMenu').style.display = 'none'; document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active')); }
+
+function moveToTier(targetTIdx) {
+    let item;
+    if(selectedImg.tIdx === -1) item = lists[curId].unsorted.splice(selectedImg.iIdx, 1)[0];
+    else item = lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1)[0];
+    
+    if(targetTIdx === -1) lists[curId].unsorted.push(item);
+    else lists[curId].tiers[targetTIdx].items.push(item);
+    
+    save(); updateUI(); closeMenu();
+}
+
+function deletePhoto() {
+    if(selectedImg.tIdx === -1) lists[curId].unsorted.splice(selectedImg.iIdx, 1);
+    else lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1);
+    save(); updateUI(); closeMenu();
+}
+
+function moveSide(dir) {
+    let arr = selectedImg.tIdx === -1 ? lists[curId].unsorted : lists[curId].tiers[selectedImg.tIdx].items;
+    let newIdx = dir === 'left' ? selectedImg.iIdx - 1 : selectedImg.iIdx + 1;
+    if(newIdx >= 0 && newIdx < arr.length) {
+        const temp = arr[selectedImg.iIdx];
+        arr[selectedImg.iIdx] = arr[newIdx];
+        arr[newIdx] = temp;
+        save(); updateUI(); closeMenu();
+    }
 }
 </script>
 </body>
