@@ -24,9 +24,8 @@
         .btn-add { background: #1b5e20; } .btn-blue { background: #0d47a1; } .btn-red { background: #b71c1c; } .btn-purple { background: #4a148c; }
         
         .tier-row { display: flex; background: #111; margin-bottom: 8px; border-radius: 18px; overflow: hidden; min-height: 80px; border: 1px solid #222; }
-        .tier-label { width: 65px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 1.4rem; cursor: pointer; flex-shrink: 0; }
+        .tier-label { width: 65px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-align: center; padding: 5px; word-break: break-all; }
         
-        /* Сетка для 5 картинок в ряд */
         .tier-items { 
             flex-grow: 1; 
             display: grid; 
@@ -39,7 +38,7 @@
         .img-item { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
         .img-item.active { border-color: #2196F3; transform: scale(1.05); z-index: 10; }
         
-        #imgMenu { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 25px 20px env(safe-area-inset-bottom); border-top: 1px solid #333; display: none; z-index: 1000; border-radius: 25px 25px 0 0; }
+        #imgMenu, #tierMenu { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 25px 20px env(safe-area-inset-bottom); border-top: 1px solid #333; display: none; z-index: 1000; border-radius: 25px 25px 0 0; }
         .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .rank-btn { padding: 12px 2px; border: none; border-radius: 8px; color: #000; font-weight: bold; font-size: 12px; text-align: center; }
         .unsorted { background: #050505; border: 1px dashed #222; border-radius: 20px; margin-top: 30px; padding: 15px; }
@@ -73,10 +72,11 @@
     <div class="unsorted"><h4>ОЧЕРЕДЬ:</h4><div class="tier-items" id="unsorted-items"></div></div>
 </div>
 
+<!-- Меню управления картинкой -->
 <div id="imgMenu">
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ</span>
-        <button onclick="closeMenu()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
+        <span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ КАРТИНКОЙ</span>
+        <button onclick="closeMenus()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
     </div>
     <div class="btn-row">
         <button class="btn btn-blue" onclick="moveSide('left')">←</button>
@@ -86,8 +86,21 @@
     <div id="rankButtons" class="menu-grid"></div>
 </div>
 
+<!-- Меню управления тиром -->
+<div id="tierMenu">
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size:11px; color:#555; font-weight:bold;">НАСТРОЙКИ РАНГА</span>
+        <button onclick="closeMenus()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-blue" onclick="renameTier()">ИМЯ</button>
+        <button class="btn btn-blue" onclick="recolorTier()">ЦВЕТ</button>
+        <button class="btn btn-red" onclick="removeTier()">УДАЛИТЬ РАНГ</button>
+    </div>
+</div>
+
 <script>
-let db, lists = {}, curId = null, selectedImg = null;
+let db, lists = {}, curId = null, selectedImg = null, selectedTierIdx = null;
 const request = indexedDB.open("SuperTierDB_v3", 1);
 request.onupgradeneeded = e => { e.target.result.createObjectStore("data", { keyPath: "id" }); };
 request.onsuccess = e => { db = e.target.result; loadData(); };
@@ -114,7 +127,7 @@ function updateUI() {
     
     lists[curId].tiers.forEach((t, tIdx) => {
         const row = document.createElement('div'); row.className = 'tier-row';
-        row.innerHTML = `<div class="tier-label" style="background:${t.color}" onclick="editTier(${tIdx})">${t.name}</div><div class="tier-items" id="t-${tIdx}"></div>`;
+        row.innerHTML = `<div class="tier-label" style="background:${t.color}" onclick="openTierMenu(${tIdx})">${t.name}</div><div class="tier-items" id="t-${tIdx}"></div>`;
         board.appendChild(row);
         t.items.forEach((src, iIdx) => renderImg(src, tIdx, iIdx, `t-${tIdx}`));
     });
@@ -128,7 +141,7 @@ function renderImg(src, tIdx, iIdx, containerId) {
     const img = document.createElement('img'); 
     img.src = src; 
     img.className = 'img-item'; 
-    img.onclick = (e) => openMenu(tIdx, iIdx, e); 
+    img.onclick = (e) => openImgMenu(tIdx, iIdx, e); 
     const container = document.getElementById(containerId);
     if(container) container.appendChild(img);
 }
@@ -141,7 +154,6 @@ function uploadFiles(files) {
     });
 }
 
-/* ИСПРАВЛЕННЫЙ БЭКАП */
 function exportJSON() {
     const data = JSON.stringify(lists);
     const blob = new Blob([data], {type: 'application/json'});
@@ -155,37 +167,57 @@ function exportJSON() {
     URL.revokeObjectURL(url);
 }
 
-/* ИСПРАВЛЕННЫЙ ИМПОРТ */
 function importJSON(input) {
-    const file = input.files[0];
-    if (!file) return;
+    if (!input.files[0]) return;
     const reader = new FileReader();
     reader.onload = e => {
         try {
-            const imported = JSON.parse(e.target.result);
-            lists = imported;
+            lists = JSON.parse(e.target.result);
             curId = Object.keys(lists)[0];
             save(); updateUI();
             alert("Импорт выполнен!");
-        } catch(err) { alert("Ошибка: Неверный формат JSON"); }
+        } catch(err) { alert("Ошибка: Неверный формат файла"); }
     };
-    reader.readAsText(file);
+    reader.readAsText(input.files[0]);
 }
 
 function newList(name = null) { 
-    const title = name || prompt("Название:"); 
+    const title = name || prompt("Название списка:"); 
     if (!title) return; 
     const id = Date.now().toString(); 
     lists[id] = { name: title, tiers: [{ name: 'S', color: '#ff5252', items: [] }, { name: 'A', color: '#ffb142', items: [] }, { name: 'B', color: '#ffda79', items: [] }], unsorted: [] }; 
     curId = id; updateUI(); save(); 
 }
 
-function switchList() { curId = document.getElementById('listSelect').value; updateUI(); }
-function deleteCurrentList() { if(Object.keys(lists).length > 1 && confirm("Удалить?")) { delete lists[curId]; curId = Object.keys(lists)[0]; save(); updateUI(); } }
-function renameCurrentList() { const n = prompt("Новое имя:", lists[curId].name); if(n) { lists[curId].name = n; save(); updateUI(); } }
-function addTier() { lists[curId].tiers.push({name:'?', color:'#555', items:[]}); save(); updateUI(); }
+function addTier() { lists[curId].tiers.push({name:'Новый', color:'#555', items:[]}); save(); updateUI(); }
 
-function openMenu(tIdx, iIdx, e) {
+/* ФУНКЦИИ ТИРОВ */
+function openTierMenu(idx) {
+    selectedTierIdx = idx;
+    document.getElementById('tierMenu').style.display = 'block';
+}
+
+function renameTier() {
+    const n = prompt("Имя ранга:", lists[curId].tiers[selectedTierIdx].name);
+    if(n) { lists[curId].tiers[selectedTierIdx].name = n; save(); updateUI(); closeMenus(); }
+}
+
+function recolorTier() {
+    const c = prompt("Цвет (HEX или название, напр. red):", lists[curId].tiers[selectedTierIdx].color);
+    if(c) { lists[curId].tiers[selectedTierIdx].color = c; save(); updateUI(); closeMenus(); }
+}
+
+function removeTier() {
+    if(confirm("Удалить ранг? Картинки переместятся в очередь.")) {
+        const items = lists[curId].tiers[selectedTierIdx].items;
+        lists[curId].unsorted.push(...items);
+        lists[curId].tiers.splice(selectedTierIdx, 1);
+        save(); updateUI(); closeMenus();
+    }
+}
+
+/* ФУНКЦИИ КАРТИНОК */
+function openImgMenu(tIdx, iIdx, e) {
     selectedImg = { tIdx, iIdx };
     document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active'));
     e.target.classList.add('active');
@@ -197,7 +229,11 @@ function openMenu(tIdx, iIdx, e) {
     document.getElementById('imgMenu').style.display = 'block';
 }
 
-function closeMenu() { document.getElementById('imgMenu').style.display = 'none'; document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active')); }
+function closeMenus() { 
+    document.getElementById('imgMenu').style.display = 'none'; 
+    document.getElementById('tierMenu').style.display = 'none';
+    document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active')); 
+}
 
 function moveToTier(targetTIdx) {
     let item;
@@ -207,25 +243,27 @@ function moveToTier(targetTIdx) {
     if(targetTIdx === -1) lists[curId].unsorted.push(item);
     else lists[curId].tiers[targetTIdx].items.push(item);
     
-    save(); updateUI(); closeMenu();
+    save(); updateUI(); closeMenus();
 }
 
 function deletePhoto() {
     if(selectedImg.tIdx === -1) lists[curId].unsorted.splice(selectedImg.iIdx, 1);
     else lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1);
-    save(); updateUI(); closeMenu();
+    save(); updateUI(); closeMenus();
 }
 
 function moveSide(dir) {
     let arr = selectedImg.tIdx === -1 ? lists[curId].unsorted : lists[curId].tiers[selectedImg.tIdx].items;
     let newIdx = dir === 'left' ? selectedImg.iIdx - 1 : selectedImg.iIdx + 1;
     if(newIdx >= 0 && newIdx < arr.length) {
-        const temp = arr[selectedImg.iIdx];
-        arr[selectedImg.iIdx] = arr[newIdx];
-        arr[newIdx] = temp;
-        save(); updateUI(); closeMenu();
+        [arr[selectedImg.iIdx], arr[newIdx]] = [arr[newIdx], arr[selectedImg.iIdx]];
+        save(); updateUI(); closeMenus();
     }
 }
+
+function switchList() { curId = document.getElementById('listSelect').value; updateUI(); }
+function deleteCurrentList() { if(Object.keys(lists).length > 1 && confirm("Удалить весь список?")) { delete lists[curId]; curId = Object.keys(lists)[0]; save(); updateUI(); } }
+function renameCurrentList() { const n = prompt("Имя списка:", lists[curId].name); if(n) { lists[curId].name = n; save(); updateUI(); } }
 </script>
 </body>
 </html>
