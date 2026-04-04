@@ -26,15 +26,7 @@
         .tier-row { display: flex; background: #111; margin-bottom: 8px; border-radius: 18px; overflow: hidden; min-height: 80px; border: 1px solid #222; }
         .tier-label { width: 65px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; text-align: center; padding: 5px; word-break: break-all; }
         
-        .tier-items { 
-            flex-grow: 1; 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 6px; 
-            padding: 8px; 
-            background: #000; 
-            align-content: start;
-        }
+        .tier-items { flex-grow: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 8px; background: #000; align-content: start; }
         .img-item { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
         .img-item.active { border-color: #2196F3; transform: scale(1.05); z-index: 10; }
         
@@ -53,17 +45,12 @@
             <select id="listSelect" onchange="switchList()"></select>
             <button class="btn btn-blue" style="max-width:45px;" onclick="renameCurrentList()">✎</button>
         </div>
-        <div class="btn-row">
-            <button class="btn btn-blue" onclick="newList()">+ Новый</button>
-            <button class="btn btn-red" onclick="deleteCurrentList()">Удалить</button>
-        </div>
-        <div class="btn-row">
-            <button class="btn btn-add" onclick="document.getElementById('fIn').click()">ФОТО</button>
-            <button class="btn btn-purple" onclick="addTier()">+ РАНГ</button>
-        </div>
+        <div class="btn-row"><button class="btn btn-blue" onclick="newList()">+ Новый</button><button class="btn btn-red" onclick="deleteCurrentList()">Удалить</button></div>
+        <div class="btn-row"><button class="btn btn-add" onclick="document.getElementById('fIn').click()">ФОТО</button><button class="btn btn-purple" onclick="addTier()">+ РАНГ</button></div>
         <div class="btn-row" style="margin-top:10px">
             <button class="btn" style="background:#333" onclick="exportJSON()">БЭКАП</button>
             <button class="btn" style="background:#333" onclick="document.getElementById('impIn').click()">ИМПОРТ</button>
+            <button class="btn" style="background:#440000; max-width: 60px;" onclick="clearAllData()">🧹</button>
         </div>
         <input type="file" id="fIn" multiple accept="image/*" style="display:none" onchange="uploadFiles(this.files)">
         <input type="file" id="impIn" accept=".json" style="display:none" onchange="importJSON(this)">
@@ -74,195 +61,151 @@
 
 <!-- Меню управления картинкой -->
 <div id="imgMenu">
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ КАРТИНКОЙ</span>
-        <button onclick="closeMenus()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
-    </div>
-    <div class="btn-row">
-        <button class="btn btn-blue" onclick="moveSide('left')">←</button>
-        <button class="btn btn-blue" onclick="moveSide('right')">→</button>
-        <button class="btn btn-red" onclick="deletePhoto()">УДАЛИТЬ</button>
-    </div>
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="font-size:11px; color:#555; font-weight:bold;">УПРАВЛЕНИЕ КАРТИНКОЙ</span><button onclick="closeMenus()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button></div>
+    <div class="btn-row"><button class="btn btn-blue" onclick="moveSide('left')">←</button><button class="btn btn-blue" onclick="moveSide('right')">→</button><button class="btn btn-red" onclick="deletePhoto()">УДАЛИТЬ</button></div>
     <div id="rankButtons" class="menu-grid"></div>
 </div>
 
 <!-- Меню управления тиром -->
 <div id="tierMenu">
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-size:11px; color:#555; font-weight:bold;">НАСТРОЙКИ РАНГА</span>
-        <button onclick="closeMenus()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button>
-    </div>
-    <div class="btn-row">
-        <button class="btn btn-blue" onclick="renameTier()">ИМЯ</button>
-        <button class="btn btn-blue" onclick="recolorTier()">ЦВЕТ</button>
-        <button class="btn btn-red" onclick="removeTier()">УДАЛИТЬ РАНГ</button>
-    </div>
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><span style="font-size:11px; color:#555; font-weight:bold;">НАСТРОЙКИ РАНГА</span><button onclick="closeMenus()" style="background:none; border:none; color:#fff; font-size:36px; line-height:0.1;">&times;</button></div>
+    <div class="btn-row"><button class="btn btn-blue" onclick="renameTier()">ИМЯ</button><button class="btn btn-blue" onclick="recolorTier()">ЦВЕТ</button><button class="btn btn-red" onclick="removeTier()">УДАЛИТЬ РАНГ</button></div>
 </div>
 
 <script>
 let db, lists = {}, curId = null, selectedImg = null, selectedTierIdx = null;
+
+// Удаление старых баз данных (чистка памяти)
+['SuperTierDB_v1', 'SuperTierDB_v2', 'SuperTierDB'].forEach(oldDb => indexedDB.deleteDatabase(oldDb));
+
 const request = indexedDB.open("SuperTierDB_v3", 1);
 request.onupgradeneeded = e => { e.target.result.createObjectStore("data", { keyPath: "id" }); };
 request.onsuccess = e => { db = e.target.result; loadData(); };
 
 function loadData() { 
     db.transaction("data").objectStore("data").get("main").onsuccess = (e) => { 
-        if (e.target.result) { 
-            lists = e.target.result.content; 
-            curId = Object.keys(lists)[0]; 
-            updateUI(); 
-        } else { 
-            newList("Мой список"); 
-        } 
+        if (e.target.result) { lists = e.target.result.content; curId = Object.keys(lists)[0]; updateUI(); } 
+        else { newList("Мой список"); } 
     }; 
 }
 
 function save() { db.transaction("data", "readwrite").objectStore("data").put({ id: "main", content: lists }); }
+
+/* СЖАТИЕ КАРТИНОК */
+function uploadFiles(files) {
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_SIZE = 300;
+                let w = img.width, h = img.height;
+                if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+                else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                lists[curId].unsorted.push(canvas.toDataURL('image/jpeg', 0.8));
+                save(); updateUI();
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function clearAllData() {
+    if(confirm("ВНИМАНИЕ! Это полностью очистит все списки. Сделайте бэкап перед этим! Продолжить?")) {
+        lists = {};
+        db.transaction("data", "readwrite").objectStore("data").clear().onsuccess = () => {
+            location.reload();
+        };
+    }
+}
 
 function updateUI() {
     const sel = document.getElementById('listSelect'); sel.innerHTML = '';
     for (let id in lists) { sel.innerHTML += `<option value="${id}" ${id===curId?'selected':''}>${lists[id].name}</option>`; }
     const board = document.getElementById('tierBoard'); board.innerHTML = '';
     if(!lists[curId]) return;
-    
     lists[curId].tiers.forEach((t, tIdx) => {
         const row = document.createElement('div'); row.className = 'tier-row';
         row.innerHTML = `<div class="tier-label" style="background:${t.color}" onclick="openTierMenu(${tIdx})">${t.name}</div><div class="tier-items" id="t-${tIdx}"></div>`;
         board.appendChild(row);
         t.items.forEach((src, iIdx) => renderImg(src, tIdx, iIdx, `t-${tIdx}`));
     });
-    
     const unsortedContainer = document.getElementById('unsorted-items');
     unsortedContainer.innerHTML = '';
     lists[curId].unsorted.forEach((src, iIdx) => renderImg(src, -1, iIdx, 'unsorted-items'));
 }
 
 function renderImg(src, tIdx, iIdx, containerId) { 
-    const img = document.createElement('img'); 
-    img.src = src; 
-    img.className = 'img-item'; 
+    const img = document.createElement('img'); img.src = src; img.className = 'img-item'; 
     img.onclick = (e) => openImgMenu(tIdx, iIdx, e); 
     const container = document.getElementById(containerId);
     if(container) container.appendChild(img);
 }
 
-function uploadFiles(files) {
-    Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => { lists[curId].unsorted.push(e.target.result); save(); updateUI(); };
-        reader.readAsDataURL(file);
-    });
-}
-
 function exportJSON() {
-    const data = JSON.stringify(lists);
-    const blob = new Blob([data], {type: 'application/json'});
+    const blob = new Blob([JSON.stringify(lists)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'tier-list-backup.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const a = document.createElement('a'); a.href = url; a.download = 'tier-list-backup.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 function importJSON(input) {
-    if (!input.files[0]) return;
     const reader = new FileReader();
     reader.onload = e => {
         try {
-            lists = JSON.parse(e.target.result);
-            curId = Object.keys(lists)[0];
-            save(); updateUI();
-            alert("Импорт выполнен!");
-        } catch(err) { alert("Ошибка: Неверный формат файла"); }
+            lists = JSON.parse(e.target.result); curId = Object.keys(lists)[0];
+            save(); updateUI(); alert("Импорт выполнен!");
+        } catch(err) { alert("Ошибка файла!"); }
     };
     reader.readAsText(input.files[0]);
 }
 
 function newList(name = null) { 
-    const title = name || prompt("Название списка:"); 
-    if (!title) return; 
+    const title = name || prompt("Название списка:"); if (!title) return; 
     const id = Date.now().toString(); 
     lists[id] = { name: title, tiers: [{ name: 'S', color: '#ff5252', items: [] }, { name: 'A', color: '#ffb142', items: [] }, { name: 'B', color: '#ffda79', items: [] }], unsorted: [] }; 
     curId = id; updateUI(); save(); 
 }
 
 function addTier() { lists[curId].tiers.push({name:'Новый', color:'#555', items:[]}); save(); updateUI(); }
+function openTierMenu(idx) { selectedTierIdx = idx; document.getElementById('tierMenu').style.display = 'block'; }
+function renameTier() { const n = prompt("Имя:", lists[curId].tiers[selectedTierIdx].name); if(n) { lists[curId].tiers[selectedTierIdx].name = n; save(); updateUI(); closeMenus(); } }
+function recolorTier() { const c = prompt("Цвет:", lists[curId].tiers[selectedTierIdx].color); if(c) { lists[curId].tiers[selectedTierIdx].color = c; save(); updateUI(); closeMenus(); } }
+function removeTier() { if(confirm("Удалить ранг?")) { lists[curId].unsorted.push(...lists[curId].tiers[selectedTierIdx].items); lists[curId].tiers.splice(selectedTierIdx, 1); save(); updateUI(); closeMenus(); } }
 
-/* ФУНКЦИИ ТИРОВ */
-function openTierMenu(idx) {
-    selectedTierIdx = idx;
-    document.getElementById('tierMenu').style.display = 'block';
-}
-
-function renameTier() {
-    const n = prompt("Имя ранга:", lists[curId].tiers[selectedTierIdx].name);
-    if(n) { lists[curId].tiers[selectedTierIdx].name = n; save(); updateUI(); closeMenus(); }
-}
-
-function recolorTier() {
-    const c = prompt("Цвет (HEX или название, напр. red):", lists[curId].tiers[selectedTierIdx].color);
-    if(c) { lists[curId].tiers[selectedTierIdx].color = c; save(); updateUI(); closeMenus(); }
-}
-
-function removeTier() {
-    if(confirm("Удалить ранг? Картинки переместятся в очередь.")) {
-        const items = lists[curId].tiers[selectedTierIdx].items;
-        lists[curId].unsorted.push(...items);
-        lists[curId].tiers.splice(selectedTierIdx, 1);
-        save(); updateUI(); closeMenus();
-    }
-}
-
-/* ФУНКЦИИ КАРТИНОК */
 function openImgMenu(tIdx, iIdx, e) {
     selectedImg = { tIdx, iIdx };
     document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active'));
     e.target.classList.add('active');
     const rb = document.getElementById('rankButtons'); rb.innerHTML = '';
-    lists[curId].tiers.forEach((t, idx) => {
-        rb.innerHTML += `<button class="rank-btn" style="background:${t.color}" onclick="moveToTier(${idx})">${t.name}</button>`;
-    });
+    lists[curId].tiers.forEach((t, idx) => { rb.innerHTML += `<button class="rank-btn" style="background:${t.color}" onclick="moveToTier(${idx})">${t.name}</button>`; });
     rb.innerHTML += `<button class="rank-btn" style="background:#333; color:#fff" onclick="moveToTier(-1)">ОЧЕРЕДЬ</button>`;
     document.getElementById('imgMenu').style.display = 'block';
 }
 
-function closeMenus() { 
-    document.getElementById('imgMenu').style.display = 'none'; 
-    document.getElementById('tierMenu').style.display = 'none';
-    document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active')); 
-}
+function closeMenus() { document.getElementById('imgMenu').style.display = 'none'; document.getElementById('tierMenu').style.display = 'none'; document.querySelectorAll('.img-item').forEach(i => i.classList.remove('active')); }
 
 function moveToTier(targetTIdx) {
-    let item;
-    if(selectedImg.tIdx === -1) item = lists[curId].unsorted.splice(selectedImg.iIdx, 1)[0];
-    else item = lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1)[0];
-    
-    if(targetTIdx === -1) lists[curId].unsorted.push(item);
-    else lists[curId].tiers[targetTIdx].items.push(item);
-    
+    let item = (selectedImg.tIdx === -1) ? lists[curId].unsorted.splice(selectedImg.iIdx, 1)[0] : lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1)[0];
+    if(targetTIdx === -1) lists[curId].unsorted.push(item); else lists[curId].tiers[targetTIdx].items.push(item);
     save(); updateUI(); closeMenus();
 }
 
-function deletePhoto() {
-    if(selectedImg.tIdx === -1) lists[curId].unsorted.splice(selectedImg.iIdx, 1);
-    else lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1);
-    save(); updateUI(); closeMenus();
-}
+function deletePhoto() { if(selectedImg.tIdx === -1) lists[curId].unsorted.splice(selectedImg.iIdx, 1); else lists[curId].tiers[selectedImg.tIdx].items.splice(selectedImg.iIdx, 1); save(); updateUI(); closeMenus(); }
 
 function moveSide(dir) {
     let arr = selectedImg.tIdx === -1 ? lists[curId].unsorted : lists[curId].tiers[selectedImg.tIdx].items;
     let newIdx = dir === 'left' ? selectedImg.iIdx - 1 : selectedImg.iIdx + 1;
-    if(newIdx >= 0 && newIdx < arr.length) {
-        [arr[selectedImg.iIdx], arr[newIdx]] = [arr[newIdx], arr[selectedImg.iIdx]];
-        save(); updateUI(); closeMenus();
-    }
+    if(newIdx >= 0 && newIdx < arr.length) { [arr[selectedImg.iIdx], arr[newIdx]] = [arr[newIdx], arr[selectedImg.iIdx]]; save(); updateUI(); closeMenus(); }
 }
 
 function switchList() { curId = document.getElementById('listSelect').value; updateUI(); }
-function deleteCurrentList() { if(Object.keys(lists).length > 1 && confirm("Удалить весь список?")) { delete lists[curId]; curId = Object.keys(lists)[0]; save(); updateUI(); } }
+function deleteCurrentList() { if(Object.keys(lists).length > 1 && confirm("Удалить список?")) { delete lists[curId]; curId = Object.keys(lists)[0]; save(); updateUI(); } }
 function renameCurrentList() { const n = prompt("Имя списка:", lists[curId].name); if(n) { lists[curId].name = n; save(); updateUI(); } }
 </script>
 </body>
